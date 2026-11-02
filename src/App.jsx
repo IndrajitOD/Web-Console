@@ -1,0 +1,550 @@
+import { Fragment, useEffect, useState } from 'react'
+import * as Select from '@radix-ui/react-select'
+import {
+  Activity,
+  ArrowDown,
+  ArrowLeft,
+  ArrowUpRight,
+  Bell,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  Clock3,
+  FileText,
+  Headphones,
+  LayoutDashboard,
+  Menu,
+  MessageSquareText,
+  MoreHorizontal,
+  Phone,
+  Search,
+  Settings2,
+  ShieldCheck,
+  UserRound,
+  UsersRound,
+  X,
+} from 'lucide-react'
+
+const initialAnswers = {
+  timely: 'No',
+  behavior: 7,
+  damages: 'No',
+  explanation: 'Yes',
+  uncoveredDamageReason: '',
+  assessment: 8,
+  delivery: 'No',
+  service: 'Yes',
+  overall: 8,
+  remarks: 'Customer mentioned old damage on the rear bumper.',
+}
+
+const NO_RATING = 'no-rating'
+
+const questionGroups = [
+  {
+    questions: [
+      { key: 'timely', number: '01', text: 'Was the survey conducted on time?', type: 'choice' },
+      { key: 'behavior', number: '02', text: 'How would you rate the surveyor’s behaviour?', type: 'rating', hint: '1 = poor · 10 = excellent' },
+    ],
+  },
+  {
+    questions: [
+      { key: 'damages', number: '03', text: 'Were all damages on the claim form approved by the surveyor?', type: 'choice' },
+      { key: 'explanation', number: '04', text: 'Did the surveyor explain why any parts were not approved?', type: 'choice', options: ['Yes', 'No', 'Don’t know', 'N/A'] },
+      { key: 'assessment', number: '05', text: 'How would you rate the claim assessment?', type: 'rating', hint: '1 = poor · 10 = excellent' },
+    ],
+  },
+  {
+    questions: [
+      { key: 'delivery', number: '06', text: 'Was the vehicle delivered on the promised date?', type: 'choice' },
+      { key: 'service', number: '07', text: 'Are you happy with the dealer or workshop service?', type: 'choice' },
+      { key: 'overall', number: '08', text: 'How would you rate the overall claim experience?', type: 'rating', hint: '1 = poor · 10 = excellent' },
+    ],
+  },
+]
+
+const explanationDetailsQuestion = {
+  key: 'uncoveredDamageReason',
+  number: '04A',
+  text: 'Damages not covered by the surveyor',
+  type: 'choice',
+  options: [
+    'Old Damage/Rust in Damage parts',
+    'One side damage covered',
+    'Multiple Damage',
+    'Cause of loss incorrectly mentioned in claim form',
+    'Survey not response to customer',
+    'Delay in claim intimation',
+    'N/A',
+  ],
+}
+
+const navItems = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'calls', label: 'Call queue', icon: Headphones, count: '04' },
+  { id: 'customers', label: 'Customers', icon: UsersRound },
+  { id: 'claims', label: 'Claims', icon: ShieldCheck },
+]
+
+const tabs = ['Call Info', 'CRM', 'Additional CRM', 'History']
+
+function loadPracticeData() {
+  try {
+    const saved = localStorage.getItem('claimdesk-practice')
+    return saved ? JSON.parse(saved) : initialAnswers
+  } catch {
+    return initialAnswers
+  }
+}
+
+function LegacyApp() {
+  const [answers, setAnswers] = useState(loadPracticeData)
+  const [activeTab, setActiveTab] = useState('Additional CRM')
+  const [activeNav, setActiveNav] = useState('calls')
+  const [saveState, setSaveState] = useState('Saved locally')
+  const [completed, setCompleted] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    setSaveState('Saving…')
+    const timer = window.setTimeout(() => {
+      localStorage.setItem('claimdesk-practice', JSON.stringify(answers))
+      setSaveState('Saved locally')
+    }, 350)
+    return () => window.clearTimeout(timer)
+  }, [answers])
+
+  const setAnswer = (key, value) => {
+    setAnswers((current) => ({ ...current, [key]: value }))
+    setCompleted(false)
+  }
+
+  const resetPractice = () => {
+    setAnswers(initialAnswers)
+    setCompleted(false)
+    setActiveTab('Additional CRM')
+    setMenuOpen(false)
+  }
+
+  const answeredCount = Object.keys(initialAnswers).filter((key) => {
+    const value = answers[key]
+    return value !== '' && value !== null && value !== undefined
+  }).length
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <a className="brand" href="#home" aria-label="Claimdesk home">
+          <span className="brand-mark"><ShieldCheck size={19} strokeWidth={2.2} /></span>
+          <span>claimdesk<span className="brand-period">.</span></span>
+        </a>
+        <div className="workspace-label">WORKSPACE</div>
+        <button className="workspace-switcher" type="button">
+          <span className="workspace-avatar">N</span>
+          <span className="workspace-copy"><strong>Northstar Assist</strong><small>Support team</small></span>
+          <ChevronDown size={15} />
+        </button>
+        <div className="nav-caption">WORKSPACE</div>
+        <nav className="side-nav" aria-label="Main navigation">
+          {navItems.map(({ id, label, icon: Icon, count }) => (
+            <button
+              className={`side-link ${activeNav === id ? 'active' : ''}`}
+              key={id}
+              onClick={() => setActiveNav(id)}
+              type="button"
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+              {count && <span className="nav-count">{count}</span>}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-spacer" />
+        <button className="side-link settings-link" type="button" onClick={() => setActiveNav('settings')}>
+          <Settings2 size={18} /><span>Settings</span>
+        </button>
+        <div className="agent-profile">
+          <div className="agent-avatar">JR</div>
+          <span className="agent-copy"><strong>Jordan Reyes</strong><small>Claims specialist</small></span>
+          <MoreHorizontal size={18} />
+        </div>
+      </aside>
+
+      <main className="main-area">
+        <header className="topbar">
+          <button className="mobile-brand" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Open menu">
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            <span className="brand-mark"><ShieldCheck size={16} /></span>
+            <span>claimdesk<span className="brand-period">.</span></span>
+          </button>
+          <div className="breadcrumb"><span>Call queue</span><span className="crumb-slash">/</span><strong>Call review</strong></div>
+          <div className="top-actions">
+            <span className="practice-pill"><span /> Practice mode</span>
+            <button className="icon-button search-button" type="button" aria-label="Search"><Search size={18} /></button>
+            <button className="icon-button notification-button" type="button" aria-label="Notifications"><Bell size={18} /><i /></button>
+          </div>
+        </header>
+
+        {menuOpen && (
+          <div className="mobile-menu">
+            {navItems.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" onClick={() => { setActiveNav(id); setMenuOpen(false) }}>
+                <Icon size={18} />{label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="page-content">
+          <div className="page-heading">
+            <div>
+              <div className="eyebrow"><span className="eyebrow-dot" /> CUSTOMER SUPPORT <span className="eyebrow-slash">/</span> CLAIMS</div>
+              <h1>Call review</h1>
+              <p>Review the customer’s claim experience and record the outcome.</p>
+            </div>
+            <button className="back-button" type="button" onClick={() => setActiveNav('calls')}><ArrowLeft size={16} /><span>Back to queue</span></button>
+          </div>
+
+          <section className="call-card" aria-label="Active customer call">
+            <div className="call-card-main">
+              <div className="customer-avatar">AM</div>
+              <div className="customer-details">
+                <div className="customer-name-row"><h2>Arun Mehta</h2><span className="live-badge"><i /> IN PROGRESS</span></div>
+                <p>Motor claim <span className="detail-divider">·</span> CLM-28419</p>
+                <div className="customer-meta"><span><Phone size={13} /> +91 98765 43210</span><span><Clock3 size={13} /> 06:42</span><span><Activity size={13} /> Repair survey</span></div>
+              </div>
+            </div>
+            <div className="call-card-actions">
+              <button className="call-icon-button" type="button" title="Call options" aria-label="Call options"><MoreHorizontal size={20} /></button>
+              <button className="end-call-button" type="button" onClick={() => setCompleted(true)}><Phone size={15} /><span>End call</span></button>
+            </div>
+          </section>
+
+          <div className="tab-bar" role="tablist" aria-label="Call record sections">
+            {tabs.map((tab) => (
+              <button
+                className={`record-tab ${activeTab === tab ? 'selected' : ''}`}
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={activeTab === tab}
+                type="button"
+              >{tab}{tab === 'Additional CRM' && <span className="tab-dot" />}</button>
+            ))}
+            <button className="tab-overflow" type="button" aria-label="More sections"><MoreHorizontal size={19} /></button>
+          </div>
+
+          <div className="record-layout">
+            <section className="record-main">
+              {activeTab === 'Additional CRM' ? (
+                <>
+                  <div className="section-heading">
+                    <div>
+                      <div className="section-kicker">POST-CALL SURVEY</div>
+                      <h2>Claim experience</h2>
+                      <p>Capture feedback about the survey, assessment and repair.</p>
+                    </div>
+                    <div className="completion-badge"><CheckCircle2 size={15} /><span>{answeredCount} of 9 complete</span></div>
+                  </div>
+                  <div className="progress-track" aria-label={`${answeredCount} of 9 fields complete`}><span style={{ width: `${(answeredCount / 9) * 100}%` }} /></div>
+                  <div className="question-groups">
+                    {questionGroups.map((group) => (
+                      <section className="question-group" key={group.title}>
+                        <h3>{group.title}</h3>
+                        <div className="question-list">
+                          {group.questions.map((question) => (
+                            <Question
+                              key={question.key}
+                              question={question}
+                              value={answers[question.key]}
+                              onChange={(value) => setAnswer(question.key, value)}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                  <label className="remarks-field">
+                    <span className="remarks-label"><MessageSquareText size={15} /> Agent notes <span>OPTIONAL</span></span>
+                    <textarea
+                      value={answers.remarks}
+                      onChange={(event) => setAnswer('remarks', event.target.value)}
+                      placeholder="Add context from the conversation…"
+                      rows="3"
+                    />
+                  </label>
+                  <div className="form-footer">
+                    <span className="save-state"><span className="save-dot" />{saveState}</span>
+                    <div className="form-actions">
+                      <button className="text-action" type="button" onClick={resetPractice}>Reset practice</button>
+                      <button className={`complete-button ${completed ? 'is-complete' : ''}`} type="button" onClick={() => setCompleted(true)}>
+                        {completed ? <Check size={16} /> : <CheckCircle2 size={16} />}
+                        {completed ? 'Call completed' : 'Complete call'}
+                      </button>
+                    </div>
+                  </div>
+                  {completed && <div className="completion-notice" role="status"><CheckCircle2 size={16} /> Practice call marked complete. Your answers are saved on this device.</div>}
+                </>
+              ) : (
+                <OtherTab activeTab={activeTab} />
+              )}
+            </section>
+
+            <aside className="record-aside">
+              <div className="aside-card claim-summary">
+                <div className="aside-heading"><h3>Claim summary</h3><button type="button" aria-label="Open claim"><ArrowUpRight size={16} /></button></div>
+                <div className="summary-status"><span className="status-icon"><ShieldCheck size={17} /></span><span><strong>Under assessment</strong><small>Last updated 12 Jun 2025</small></span></div>
+                <dl className="summary-list">
+                  <div><dt>Policy number</dt><dd>POL-1084-2291</dd></div>
+                  <div><dt>Vehicle</dt><dd>Hyundai Creta, 2022</dd></div>
+                  <div><dt>Registration</dt><dd>KA 03 MN 4821</dd></div>
+                  <div><dt>Workshop</dt><dd>Metro Auto Works</dd></div>
+                </dl>
+                <button className="view-claim-button" type="button" onClick={() => setActiveTab('CRM')}>View claim details <ArrowUpRight size={14} /></button>
+              </div>
+              <div className="aside-card activity-card">
+                <div className="aside-heading"><h3>Recent activity</h3><button type="button" aria-label="View activity"><ArrowUpRight size={16} /></button></div>
+                <div className="activity-item"><span className="activity-icon completed"><Check size={14} /></span><div><strong>Survey submitted</strong><small>12 Jun · 11:24 AM</small></div></div>
+                <div className="activity-item"><span className="activity-icon call"><Phone size={13} /></span><div><strong>Outbound call started</strong><small>12 Jun · 11:18 AM</small></div></div>
+                <div className="activity-item"><span className="activity-icon claim"><FileText size={13} /></span><div><strong>Claim assigned to you</strong><small>12 Jun · 10:52 AM</small></div></div>
+                <button className="activity-link" type="button" onClick={() => setActiveTab('History')}>View full history <ArrowDown size={14} /></button>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        <button type="button" onClick={() => setActiveNav('overview')}><LayoutDashboard size={19} /><span>Home</span></button>
+        <button className="mobile-nav-active" type="button" onClick={() => setActiveNav('calls')}><Headphones size={19} /><span>Calls</span></button>
+        <button type="button" onClick={() => setActiveNav('customers')}><UserRound size={19} /><span>People</span></button>
+        <button type="button" onClick={() => setActiveNav('claims')}><ShieldCheck size={19} /><span>Claims</span></button>
+      </nav>
+    </div>
+  )
+}
+
+function Question({ question, value, onChange }) {
+  const isRating = question.type === 'rating'
+  const options = isRating
+    ? [
+        ...Array.from({ length: 10 }, (_, index) => String(index + 1)).map((rating) => ({ value: rating, label: rating })),
+        { value: NO_RATING, label: 'No rating' },
+      ]
+    : (question.options ?? ['Yes', 'No', 'Don’t know']).map((answer) => ({ value: answer, label: answer }))
+
+  return (
+    <div className="question-row">
+      <div className="question-copy">
+        <span className="question-number">{question.number}</span>
+        <div><p>{question.text}</p>{question.hint && <small>{question.hint}</small>}</div>
+      </div>
+      <Dropdown
+        ariaLabel={`${isRating ? 'Rating' : 'Answer'}: ${question.text}`}
+        value={value ?? (isRating ? 1 : '')}
+        placeholder="Choose an answer"
+        options={options}
+        onChange={(selectedValue) => onChange(isRating && selectedValue !== NO_RATING ? Number(selectedValue) : selectedValue)}
+      />
+    </div>
+  )
+}
+
+function Dropdown({ ariaLabel, value, placeholder, options, onChange }) {
+  return (
+    <Select.Root value={String(value ?? '')} onValueChange={onChange}>
+      <Select.Trigger className="dropdown-trigger" aria-label={ariaLabel}>
+        <Select.Value placeholder={placeholder} />
+        <Select.Icon asChild><ChevronDown className="dropdown-chevron" size={15} /></Select.Icon>
+      </Select.Trigger>
+      <Select.Portal>
+        <Select.Content className="dropdown-content" position="popper" sideOffset={4} align="start">
+          <Select.Viewport className="dropdown-viewport">
+            {options.map((option) => (
+              <Select.Item className="dropdown-item" key={option.value} value={option.value}>
+                <Select.ItemText>{option.label}</Select.ItemText>
+                <Select.ItemIndicator className="dropdown-indicator"><Check size={14} /></Select.ItemIndicator>
+              </Select.Item>
+            ))}
+          </Select.Viewport>
+        </Select.Content>
+      </Select.Portal>
+    </Select.Root>
+  )
+}
+
+function OtherTab({ activeTab }) {
+  if (activeTab === 'History') {
+    return (
+      <div className="other-tab-content">
+        <div className="section-kicker">CALL RECORD</div><h2>Call history</h2><p className="other-intro">Recent interactions linked to this customer and claim.</p>
+        <div className="history-list">
+          <div><span className="history-dot green" /><small>12 Jun 2025 · 11:18 AM</small><strong>Outbound claim follow-up</strong><p>Call in progress with Arun Mehta.</p></div>
+          <div><span className="history-dot amber" /><small>12 Jun 2025 · 10:52 AM</small><strong>Claim assigned</strong><p>Assigned to Jordan Reyes for customer follow-up.</p></div>
+          <div><span className="history-dot gray" /><small>11 Jun 2025 · 4:36 PM</small><strong>Survey report received</strong><p>Assessment documents added to claim file.</p></div>
+        </div>
+      </div>
+    )
+  }
+  if (activeTab === 'CRM') {
+    return (
+      <div className="other-tab-content">
+        <div className="section-kicker">CUSTOMER RECORD</div><h2>Customer details</h2><p className="other-intro">Contact information associated with this claim.</p>
+        <div className="detail-grid">
+          <div><span>Customer name</span><strong>Arun Mehta</strong></div><div><span>Phone number</span><strong>+91 98765 43210</strong></div>
+          <div><span>Email address</span><strong>arun.mehta@example.test</strong></div><div><span>Preferred language</span><strong>English</strong></div>
+          <div><span>Customer since</span><strong>March 2021</strong></div><div><span>Open claims</span><strong>1 active claim</strong></div>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="other-tab-content">
+      <div className="section-kicker">CALL DETAILS</div><h2>Call information</h2><p className="other-intro">A quick overview of this customer support interaction.</p>
+      <div className="detail-grid">
+        <div><span>Call type</span><strong>Repair survey follow-up</strong></div><div><span>Direction</span><strong>Outbound</strong></div>
+        <div><span>Queue</span><strong>Motor claims</strong></div><div><span>Lead ID</span><strong>LD-32871</strong></div>
+        <div><span>Call number</span><strong>8907390</strong></div><div><span>Assigned agent</span><strong>Jordan Reyes</strong></div>
+      </div>
+      <div className="call-info-note"><Phone size={17} /><span><strong>Practice call</strong><small>No real call is being placed. Use the survey tab to record sample answers.</small></span></div>
+    </div>
+  )
+}
+
+function App() {
+  const [answers, setAnswers] = useState(loadPracticeData)
+  const [activePage, setActivePage] = useState(() => window.location.hash === '#page-two' ? 'page-two' : 'experience')
+  const [saveState, setSaveState] = useState('Saved locally')
+  const [completed, setCompleted] = useState(false)
+
+  useEffect(() => {
+    const updatePage = () => setActivePage(window.location.hash === '#page-two' ? 'page-two' : 'experience')
+    window.addEventListener('hashchange', updatePage)
+    return () => window.removeEventListener('hashchange', updatePage)
+  }, [])
+
+  useEffect(() => {
+    setSaveState('Saving…')
+    const timer = window.setTimeout(() => {
+      localStorage.setItem('claimdesk-practice', JSON.stringify(answers))
+      setSaveState('Saved locally')
+    }, 350)
+    return () => window.clearTimeout(timer)
+  }, [answers])
+
+  const setAnswer = (key, value) => {
+    setAnswers((current) => {
+      const next = { ...current, [key]: value }
+      if (key === 'explanation' && value !== 'Yes') next.uncoveredDamageReason = ''
+      return next
+    })
+    setCompleted(false)
+  }
+
+  const visibleQuestions = questionGroups.flatMap((group) => group.questions)
+  if (answers.explanation === 'Yes') visibleQuestions.splice(4, 0, explanationDetailsQuestion)
+  const questionCount = visibleQuestions.length
+  const answeredCount = visibleQuestions.filter(({ key }) => {
+    const value = answers[key]
+    return value !== '' && value !== null && value !== undefined
+  }).length
+
+  const resetPractice = () => {
+    setAnswers(initialAnswers)
+    setCompleted(false)
+  }
+
+  return (
+    <div className="practice-site">
+      <header className="site-header">
+        <div className="site-header-inner">
+          <a className="site-brand" href="#claim-experience" aria-label="Claimdesk home">
+            <span className="brand-mark"><ShieldCheck size={18} /></span>
+            <span>claimdesk<span className="brand-period">.</span></span>
+          </a>
+          <nav className="site-navigation" aria-label="Main navigation">
+            <a href="#claim-experience" aria-current={activePage === 'experience' ? 'page' : undefined}>Claim experience</a>
+            <a href="#page-two" aria-current={activePage === 'page-two' ? 'page' : undefined}>Page 2</a>
+          </nav>
+          <span className="site-mode"><span /> Practice mode</span>
+        </div>
+      </header>
+
+      <main className="site-main">
+        {activePage === 'experience' ? (
+          <section className="experience-card" aria-labelledby="experience-title">
+            <div className="experience-heading">
+              <div className="section-kicker">CLAIM SURVEY</div>
+              <div className="experience-title-row">
+                <h1 id="experience-title">Claim experience</h1>
+                <span className="completion-badge"><CheckCircle2 size={15} />{answeredCount} of {questionCount} answered</span>
+              </div>
+              <p>Record the customer’s feedback about their claim.</p>
+            </div>
+            <div className="progress-track" aria-label={`${answeredCount} of ${questionCount} questions answered`}>
+              <span style={{ width: `${(answeredCount / questionCount) * 100}%` }} />
+            </div>
+            <div className="question-groups experience-form">
+              {questionGroups.map((group) => (
+                <section className="question-group" key={group.questions[0].key}>
+                  <div className="question-list">
+                    {group.questions.map((question) => (
+                      <Fragment key={question.key}>
+                        <Question
+                          question={question}
+                          value={answers[question.key]}
+                          onChange={(value) => setAnswer(question.key, value)}
+                        />
+                        {question.key === 'explanation' && answers.explanation === 'Yes' && (
+                          <Question
+                            question={explanationDetailsQuestion}
+                            value={answers[explanationDetailsQuestion.key]}
+                            onChange={(value) => setAnswer(explanationDetailsQuestion.key, value)}
+                          />
+                        )}
+                      </Fragment>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+            <label className="remarks-field">
+              <span className="remarks-label"><MessageSquareText size={15} /> Agent notes <span>OPTIONAL</span></span>
+              <textarea
+                value={answers.remarks}
+                onChange={(event) => setAnswer('remarks', event.target.value)}
+                placeholder="Add a note about the customer’s feedback…"
+                rows="3"
+              />
+            </label>
+            <div className="practice-actions">
+              <span className="save-state"><span className="save-dot" />{saveState}</span>
+              <div className="form-actions">
+                <button className="text-action" type="button" onClick={resetPractice}>Reset form</button>
+                <button className={`complete-button ${completed ? 'is-complete' : ''}`} type="button" onClick={() => setCompleted(true)}>
+                  {completed ? <Check size={16} /> : <CheckCircle2 size={16} />}
+                  {completed ? 'Practice complete' : 'Finish practice'}
+                </button>
+              </div>
+            </div>
+            {completed && <div className="completion-notice" role="status"><CheckCircle2 size={16} /> Practice complete. Your answers are saved on this device.</div>}
+          </section>
+        ) : (
+          <section className="second-page-placeholder" aria-labelledby="second-page-title">
+            <div className="section-kicker">WORKSPACE</div>
+            <h1 id="second-page-title">Page 2</h1>
+            <p>This page is ready for your next section.</p>
+            <a href="#claim-experience">Return to claim experience</a>
+          </section>
+        )}
+      </main>
+
+      <footer className="site-footer">
+        <span>Claimdesk practice</span>
+        <span>Responses are saved in this browser</span>
+      </footer>
+    </div>
+  )
+}
+
+export default App
