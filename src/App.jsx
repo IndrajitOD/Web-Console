@@ -26,19 +26,20 @@ import {
 } from 'lucide-react'
 
 const initialAnswers = {
-  timely: 'No',
-  behavior: 7,
-  damages: 'No',
-  explanation: 'Yes',
+  timely: '',
+  behavior: '',
+  damages: '',
+  explanation: '',
   uncoveredDamageReason: '',
-  assessment: 8,
-  delivery: 'No',
-  service: 'Yes',
-  overall: 8,
-  remarks: 'Customer mentioned old damage on the rear bumper.',
+  assessment: '',
+  delivery: '',
+  service: '',
+  overall: '',
+  remarks: '',
 }
 
 const NO_RATING = 'no-rating'
+const PRACTICE_STORAGE_KEY = 'claimdesk-practice-v2'
 
 const questionGroups = [
   {
@@ -90,7 +91,7 @@ const tabs = ['Call Info', 'CRM', 'Additional CRM', 'History']
 
 function loadPracticeData() {
   try {
-    const saved = localStorage.getItem('claimdesk-practice')
+    const saved = localStorage.getItem(PRACTICE_STORAGE_KEY)
     return saved ? JSON.parse(saved) : initialAnswers
   } catch {
     return initialAnswers
@@ -108,7 +109,7 @@ function LegacyApp() {
   useEffect(() => {
     setSaveState('Saving…')
     const timer = window.setTimeout(() => {
-      localStorage.setItem('claimdesk-practice', JSON.stringify(answers))
+      localStorage.setItem(PRACTICE_STORAGE_KEY, JSON.stringify(answers))
       setSaveState('Saved locally')
     }, 350)
     return () => window.clearTimeout(timer)
@@ -541,7 +542,7 @@ function App() {
 
       <footer className="site-footer">
         <span>Claimdesk practice</span>
-        <span>Responses are saved in this browser</span>
+        <span>Created by Indrajit Bhowmick</span>
       </footer>
     </div>
   )
