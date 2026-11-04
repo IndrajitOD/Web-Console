@@ -113,6 +113,7 @@ h1, h2, h3, p { margin-top: 0; }
 .question-copy small { display: block; margin-top: 3px; color: #9aa09b; font-size: 9px; }
 .dropdown-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 34px; padding: 0 10px; border: 1px solid #e3e8e3; border-radius: 5px; background: #fff; color: #465049; font-size: 10px; text-align: left; cursor: pointer; }
 .dropdown-trigger:hover { border-color: #cbd6cc; background: #fcfdfb; }
+.dropdown-trigger:disabled { border-color: #e8ebe8; background: #f7f8f6; color: #929a94; cursor: not-allowed; }
 .dropdown-trigger:focus-visible, .dropdown-trigger[data-state='open'] { border-color: #8eaa94; outline: 2px solid #dce9de; outline-offset: 1px; }
 .dropdown-trigger[data-placeholder] { color: #8d958f; }
 .dropdown-chevron { flex: 0 0 auto; color: #879088; transition: transform .16s ease; }

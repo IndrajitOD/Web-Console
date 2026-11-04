@@ -33,6 +33,7 @@ const initialAnswers = {
   uncoveredDamageReason: '',
   assessment: '',
   delivery: '',
+  deliveryDelayReason: '',
   service: '',
   overall: '',
   remarks: '',
@@ -95,6 +96,15 @@ const dissatisfactionQuestion = {
     'No specific reason shared',
     'N/A',
   ],
+}
+
+const deliveryDelayQuestion = {
+  key: 'deliveryDelayReason',
+  number: '06A',
+  text: 'Reason for Delay in Delivery of Vehicle',
+  type: 'choice',
+  options: [],
+  placeholder: 'Select Any...',
 }
 
 const navItems = [
@@ -360,18 +370,19 @@ function Question({ question, value, onChange }) {
       <Dropdown
         ariaLabel={`${isRating ? 'Rating' : 'Answer'}: ${question.text}`}
         value={value ?? (isRating ? 1 : '')}
-        placeholder="Choose an answer"
+        placeholder={question.placeholder ?? 'Choose an answer'}
         options={options}
+        disabled={options.length === 0}
         onChange={(selectedValue) => onChange(isRating && selectedValue !== NO_RATING ? Number(selectedValue) : selectedValue)}
       />
     </div>
   )
 }
 
-function Dropdown({ ariaLabel, value, placeholder, options, onChange }) {
+function Dropdown({ ariaLabel, value, placeholder, options, disabled, onChange }) {
   return (
     <Select.Root value={String(value ?? '')} onValueChange={onChange}>
-      <Select.Trigger className="dropdown-trigger" aria-label={ariaLabel}>
+      <Select.Trigger className="dropdown-trigger" aria-label={ariaLabel} disabled={disabled}>
         <Select.Value placeholder={placeholder} />
         <Select.Icon asChild><ChevronDown className="dropdown-chevron" size={15} /></Select.Icon>
       </Select.Trigger>
@@ -455,6 +466,7 @@ function App() {
       const next = { ...current, [key]: value }
       if (key === 'explanation' && value !== 'Yes') next.uncoveredDamageReason = ''
       if (key === 'assessment' && !(typeof value === 'number' && value < 7)) next.dissatisfactionReason = ''
+      if (key === 'delivery' && value !== 'No') next.deliveryDelayReason = ''
       return next
     })
     setCompleted(false)
@@ -466,6 +478,8 @@ function App() {
   if (typeof answers.assessment === 'number' && answers.assessment < 7) {
     visibleQuestions.splice(assessmentIndex + 1, 0, dissatisfactionQuestion)
   }
+  const deliveryIndex = visibleQuestions.findIndex(({ key }) => key === 'delivery')
+  if (answers.delivery === 'No') visibleQuestions.splice(deliveryIndex + 1, 0, deliveryDelayQuestion)
   const questionCount = visibleQuestions.length
   const answeredCount = visibleQuestions.filter(({ key }) => {
     const value = answers[key]
@@ -530,6 +544,13 @@ function App() {
                             question={dissatisfactionQuestion}
                             value={answers[dissatisfactionQuestion.key]}
                             onChange={(value) => setAnswer(dissatisfactionQuestion.key, value)}
+                          />
+                        )}
+                        {question.key === 'delivery' && answers.delivery === 'No' && (
+                          <Question
+                            question={deliveryDelayQuestion}
+                            value={answers[deliveryDelayQuestion.key]}
+                            onChange={(value) => setAnswer(deliveryDelayQuestion.key, value)}
                           />
                         )}
                       </Fragment>
