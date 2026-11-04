@@ -34,6 +34,7 @@ const initialAnswers = {
   assessment: '',
   delivery: '',
   deliveryDelayReason: '',
+  deliveryDelayDetail: '',
   service: '',
   overall: '',
   remarks: '',
@@ -105,6 +106,30 @@ const deliveryDelayQuestion = {
   type: 'choice',
   options: ['Due to Customer', 'Due to Ins Co', 'Due to Workshop', 'External Factors', 'N/A'],
   placeholder: 'Select Any...',
+}
+
+const deliveryDelayDetailsByReason = {
+  'Due to Customer': [
+    'Customer out of station',
+    "Didn't collect the vehicle",
+    'Delay in document submission by the customer',
+    'Other',
+  ],
+  'Due to Ins Co': [],
+  'Due to Workshop': [],
+  'External Factors': [],
+  'N/A': [],
+}
+
+function getDeliveryDelayDetailQuestion(reason) {
+  return {
+    key: 'deliveryDelayDetail',
+    number: '06B',
+    text: `${reason} answer`,
+    type: 'choice',
+    options: deliveryDelayDetailsByReason[reason] ?? [],
+    placeholder: 'Select Any...',
+  }
 }
 
 const navItems = [
@@ -466,7 +491,11 @@ function App() {
       const next = { ...current, [key]: value }
       if (key === 'explanation' && value !== 'Yes') next.uncoveredDamageReason = ''
       if (key === 'assessment' && !(typeof value === 'number' && value < 7)) next.dissatisfactionReason = ''
-      if (key === 'delivery' && value !== 'No') next.deliveryDelayReason = ''
+      if (key === 'delivery' && value !== 'No') {
+        next.deliveryDelayReason = ''
+        next.deliveryDelayDetail = ''
+      }
+      if (key === 'deliveryDelayReason') next.deliveryDelayDetail = ''
       return next
     })
     setCompleted(false)
@@ -479,7 +508,12 @@ function App() {
     visibleQuestions.splice(assessmentIndex + 1, 0, dissatisfactionQuestion)
   }
   const deliveryIndex = visibleQuestions.findIndex(({ key }) => key === 'delivery')
-  if (answers.delivery === 'No') visibleQuestions.splice(deliveryIndex + 1, 0, deliveryDelayQuestion)
+  if (answers.delivery === 'No') {
+    visibleQuestions.splice(deliveryIndex + 1, 0, deliveryDelayQuestion)
+    if (answers.deliveryDelayReason) {
+      visibleQuestions.splice(deliveryIndex + 2, 0, getDeliveryDelayDetailQuestion(answers.deliveryDelayReason))
+    }
+  }
   const questionCount = visibleQuestions.length
   const answeredCount = visibleQuestions.filter(({ key }) => {
     const value = answers[key]
@@ -551,6 +585,13 @@ function App() {
                             question={deliveryDelayQuestion}
                             value={answers[deliveryDelayQuestion.key]}
                             onChange={(value) => setAnswer(deliveryDelayQuestion.key, value)}
+                          />
+                        )}
+                        {question.key === 'delivery' && answers.delivery === 'No' && answers.deliveryDelayReason && (
+                          <Question
+                            question={getDeliveryDelayDetailQuestion(answers.deliveryDelayReason)}
+                            value={answers.deliveryDelayDetail}
+                            onChange={(value) => setAnswer('deliveryDelayDetail', value)}
                           />
                         )}
                       </Fragment>
