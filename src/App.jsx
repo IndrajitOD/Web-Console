@@ -103,7 +103,7 @@ const deliveryDelayQuestion = {
   number: '06A',
   text: 'Reason for Delay in Delivery of Vehicle',
   type: 'choice',
-  options: [],
+  options: ['Due to Customer', 'Due to Ins Co', 'Due to Workshop', 'External Factors', 'N/A'],
   placeholder: 'Select Any...',
 }
 
