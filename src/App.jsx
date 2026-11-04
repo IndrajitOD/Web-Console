@@ -80,6 +80,14 @@ const explanationDetailsQuestion = {
   ],
 }
 
+const dissatisfactionQuestion = {
+  key: 'dissatisfactionReason',
+  number: '05A',
+  text: 'Reasons for dissatisfaction with the surveyor (Apart from non approval of claim/damages)',
+  type: 'choice',
+  options: ['Non approval of claim/damages'],
+}
+
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'calls', label: 'Call queue', icon: Headphones, count: '04' },
@@ -427,7 +435,7 @@ function App() {
   useEffect(() => {
     setSaveState('Saving…')
     const timer = window.setTimeout(() => {
-      localStorage.setItem('claimdesk-practice', JSON.stringify(answers))
+      localStorage.setItem(PRACTICE_STORAGE_KEY, JSON.stringify(answers))
       setSaveState('Saved locally')
     }, 350)
     return () => window.clearTimeout(timer)
@@ -437,6 +445,7 @@ function App() {
     setAnswers((current) => {
       const next = { ...current, [key]: value }
       if (key === 'explanation' && value !== 'Yes') next.uncoveredDamageReason = ''
+      if (key === 'assessment' && !(typeof value === 'number' && value < 7)) next.dissatisfactionReason = ''
       return next
     })
     setCompleted(false)
@@ -444,6 +453,10 @@ function App() {
 
   const visibleQuestions = questionGroups.flatMap((group) => group.questions)
   if (answers.explanation === 'Yes') visibleQuestions.splice(4, 0, explanationDetailsQuestion)
+  const assessmentIndex = visibleQuestions.findIndex(({ key }) => key === 'assessment')
+  if (typeof answers.assessment === 'number' && answers.assessment < 7) {
+    visibleQuestions.splice(assessmentIndex + 1, 0, dissatisfactionQuestion)
+  }
   const questionCount = visibleQuestions.length
   const answeredCount = visibleQuestions.filter(({ key }) => {
     const value = answers[key]
@@ -501,6 +514,13 @@ function App() {
                             question={explanationDetailsQuestion}
                             value={answers[explanationDetailsQuestion.key]}
                             onChange={(value) => setAnswer(explanationDetailsQuestion.key, value)}
+                          />
+                        )}
+                        {question.key === 'assessment' && typeof answers.assessment === 'number' && answers.assessment < 7 && (
+                          <Question
+                            question={dissatisfactionQuestion}
+                            value={answers[dissatisfactionQuestion.key]}
+                            onChange={(value) => setAnswer(dissatisfactionQuestion.key, value)}
                           />
                         )}
                       </Fragment>
