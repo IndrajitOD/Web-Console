@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Bell,
+  BookOpen,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
   MessageSquareText,
   MoreHorizontal,
   Phone,
+  RotateCcw,
   Search,
   Settings2,
   ShieldCheck,
@@ -121,21 +123,21 @@ const serviceDissatisfactionQuestion = {
 }
 
 const syllabusTopics = [
-  'Contact Info',
-  'Benefits we offer',
-  'Risk Covered and Exclusions',
-  'Policy Types',
-  'TP vs OD',
-  'CPA Opt out',
-  'Discounts',
-  'NCB',
-  'IDV',
-  'DA',
-  'PCF',
-  'Geographical Extensions',
-  'Endorsement',
-  'Add-ons',
-  'ORA vs RSA',
+  { title: 'Contact Info', detail: 'Confirm the insured’s name and contact details, and check that they match the policy record.' },
+  { title: 'Benefits we offer', detail: 'Explain the benefits available under this product and any limits or conditions that apply.' },
+  { title: 'Risk Covered and Exclusions', detail: 'Summarize covered events, exclusions, deductibles, and limits using the policy wording.' },
+  { title: 'Policy Types', detail: 'Outline the available policy types and what each one is intended to cover.' },
+  { title: 'TP vs OD', detail: 'Third-party cover addresses legal liability to others; own-damage cover applies to damage to the insured vehicle, subject to terms.' },
+  { title: 'CPA Opt out', detail: 'Explain owner-driver personal accident cover and any choices or eligibility rules in the current approved product guidance.' },
+  { title: 'Discounts', detail: 'Describe eligible discounts and the requirements for receiving or keeping them.' },
+  { title: 'NCB', detail: 'No-claim bonus is generally an own-damage renewal discount; explain eligibility and applicable steps under the policy.' },
+  { title: 'IDV', detail: 'Insured Declared Value is a policy value used in certain total-loss or theft settlements; it is not a guaranteed payout.' },
+  { title: 'DA', detail: 'Use the company’s approved product guide to explain DA, since the abbreviation can vary by product.' },
+  { title: 'PCF', detail: 'Use the company’s approved product guide to explain PCF and how it applies to this policy.' },
+  { title: 'Geographical Extensions', detail: 'Explain any extension beyond the standard coverage territory and the endorsement terms that apply.' },
+  { title: 'Endorsement', detail: 'An endorsement is a formal change to policy details or terms; confirm when it takes effect.' },
+  { title: 'Add-ons', detail: 'Describe optional extra covers, their premium, and their limits or exclusions.' },
+  { title: 'ORA vs RSA', detail: 'Compare the on-road and roadside assistance services, limits, and conditions using the product wording.' },
 ]
 
 const deliveryDelayQuestion = {
@@ -626,7 +628,21 @@ function App() {
           </a>
           <nav className="site-navigation" aria-label="Main navigation">
             <a href="#claim-experience" aria-current={activePage === 'experience' ? 'page' : undefined}>Claim experience</a>
-            <a href="#page-two" aria-current={activePage === 'page-two' ? 'page' : undefined}>Page 2</a>
+            <a href="#page-two" aria-current={activePage === 'page-two' ? 'page' : undefined}>Syllabus</a>
+            <details className="syllabus-quick-access">
+              <summary><BookOpen size={15} /><span>Quick syllabus</span><ChevronDown size={14} /></summary>
+              <section className="syllabus-quick-panel" aria-label="Basic policy syllabus quick reference">
+                <header><span className="section-kicker">QUICK REFERENCE</span><h2>Basic policy syllabus</h2></header>
+                <ol>
+                  {syllabusTopics.map((topic, index) => (
+                    <li key={topic.title}>
+                      <span className="syllabus-topic-number">{String(index + 1).padStart(2, '0')}</span>
+                      <div><strong>{topic.title}</strong><p>{topic.detail}</p></div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </details>
           </nav>
           <span className="site-mode"><span /> Practice mode</span>
         </div>
@@ -707,7 +723,7 @@ function App() {
             <div className="practice-actions">
               <span className="save-state"><span className="save-dot" />{saveState}</span>
               <div className="form-actions">
-                <button className="text-action" type="button" onClick={resetPractice}>Reset form</button>
+                <button className="reset-form-button" type="button" onClick={resetPractice}><RotateCcw size={15} /><span>Reset form</span></button>
                 <button className={`complete-button ${completed ? 'is-complete' : ''}`} type="button" onClick={() => { setCompleted(true); setSummaryOpen(true) }}>
                   {completed ? <Check size={16} /> : <CheckCircle2 size={16} />}
                   {completed ? 'Practice complete' : 'Finish practice'}
@@ -753,7 +769,7 @@ function App() {
                 <footer className="review-dialog-footer">
                   <span><span className="save-dot" />Saved locally</span>
                   <div className="review-dialog-actions">
-                    <button className="review-reset-button" type="button" onClick={resetPractice}>Reset form</button>
+                    <button className="review-reset-button" type="button" onClick={resetPractice}><RotateCcw size={14} /><span>Reset form</span></button>
                     <button className="review-save-button" type="button" onClick={() => setSummaryOpen(false)}>Save</button>
                   </div>
                 </footer>
@@ -764,12 +780,12 @@ function App() {
           <section className="second-page-placeholder" aria-labelledby="second-page-title">
             <div className="section-kicker">BASIC SYLLABUS</div>
             <h1 id="second-page-title">Policy topics</h1>
-            <p>Topics to cover in the basic policy syllabus.</p>
+            <p>Use these short notes as a guide. Confirm coverage, limits, and eligibility in the current policy wording.</p>
             <ol className="syllabus-list">
               {syllabusTopics.map((topic, index) => (
                 <li key={topic}>
                   <span className="syllabus-topic-number">{String(index + 1).padStart(2, '0')}</span>
-                  <span>{topic}</span>
+                  <div><strong>{topic.title}</strong><p>{topic.detail}</p></div>
                 </li>
               ))}
             </ol>
