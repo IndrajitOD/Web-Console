@@ -115,9 +115,28 @@ const deliveryDelayDetailsByReason = {
     'Delay in document submission by the customer',
     'Other',
   ],
-  'Due to Ins Co': [],
-  'Due to Workshop': [],
-  'External Factors': [],
+  'Due to Ins Co': [
+    'Delay in claim approval from insurance company',
+    'Delay in post repair',
+    'Delay in the survey of vehicle',
+    'Dispute in settlement Amount',
+    'Document Verification pending',
+    'Took long time to investigate the claim',
+    'Repair estimate dispute in workshop & IC',
+    'N/A',
+  ],
+  'Due to Workshop': [
+    'Dispute in bill break up',
+    'High workload at workshop',
+    'Incomplete or delay in repair',
+    'Non availability of mechanics',
+    'Non availability in spare part',
+  ],
+  'External Factors': [
+    'Holiday/Festival',
+    'Natural Calamity - Rain/Flood',
+    'NA',
+  ],
   'N/A': [],
 }
 
