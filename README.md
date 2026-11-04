@@ -13,7 +13,7 @@ Open the local address printed by Vite on your computer. To try the app from a p
 
 ## Practice flow
 
-- Use the sticky top navigation to switch between Claim experience and Syllabus, or open Quick syllabus while filling the form.
+- Use the sticky top navigation to switch between Claim experience and Syllabus.
 - Change yes/no answers and 1–10 ratings, then add optional agent notes.
 - Finish or reset the practice form. Survey answers persist in this browser.
-- Syllabus includes short reference notes for all 15 basic policy topics.
+- Syllabus lists the 15 basic policy topics.
