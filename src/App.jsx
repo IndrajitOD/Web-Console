@@ -530,7 +530,9 @@ function App() {
   const [saveState, setSaveState] = useState('Saved locally')
   const [completed, setCompleted] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
+  const [selectedTopic, setSelectedTopic] = useState(null)
   const reviewDialogRef = useRef(null)
+  const syllabusDialogRef = useRef(null)
 
   useEffect(() => {
     const updatePage = () => setActivePage(window.location.hash === '#page-two' ? 'page-two' : 'experience')
@@ -546,7 +548,14 @@ function App() {
   }, [summaryOpen])
 
   useEffect(() => {
-    if (!summaryOpen) return
+    const dialog = syllabusDialogRef.current
+    if (!dialog) return
+    if (selectedTopic && !dialog.open) dialog.showModal()
+    if (!selectedTopic && dialog.open) dialog.close()
+  }, [selectedTopic])
+
+  useEffect(() => {
+    if (!summaryOpen && !selectedTopic) return
     const bodyOverflow = document.body.style.overflow
     const documentOverflow = document.documentElement.style.overflow
     document.body.style.overflow = 'hidden'
@@ -555,7 +564,7 @@ function App() {
       document.body.style.overflow = bodyOverflow
       document.documentElement.style.overflow = documentOverflow
     }
-  }, [summaryOpen])
+  }, [summaryOpen, selectedTopic])
 
   useEffect(() => {
     setSaveState('Saving…')
@@ -629,7 +638,6 @@ function App() {
             <a href="#claim-experience" aria-current={activePage === 'experience' ? 'page' : undefined}>Claim experience</a>
             <a href="#page-two" aria-current={activePage === 'page-two' ? 'page' : undefined}>Syllabus</a>
           </nav>
-          <span className="site-mode"><span /> Practice mode</span>
         </div>
       </header>
 
@@ -765,14 +773,37 @@ function App() {
           <section className="second-page-placeholder" aria-labelledby="second-page-title">
             <div className="section-kicker">BASIC SYLLABUS</div>
             <h1 id="second-page-title">Policy topics</h1>
+            <p className="syllabus-build-note">This page is still in build.</p>
             <ol className="syllabus-list">
               {syllabusTopics.map((topic, index) => (
                 <li key={topic}>
                   <span className="syllabus-topic-number">{String(index + 1).padStart(2, '0')}</span>
-                  <span>{topic}</span>
+                  <button className="syllabus-topic-button" type="button" onClick={() => setSelectedTopic(topic)}>
+                    <span>{topic}</span>
+                    <ArrowUpRight size={14} aria-hidden="true" />
+                  </button>
                 </li>
               ))}
             </ol>
+            <dialog
+              ref={syllabusDialogRef}
+              className="syllabus-topic-dialog"
+              aria-labelledby="syllabus-topic-dialog-title"
+              onCancel={(event) => { event.preventDefault(); setSelectedTopic(null) }}
+              onClick={(event) => { if (event.target === event.currentTarget) setSelectedTopic(null) }}
+            >
+              <div className="syllabus-topic-dialog-inner">
+                <header className="syllabus-topic-dialog-header">
+                  <div className="section-kicker">BASIC SYLLABUS</div>
+                  <h2 id="syllabus-topic-dialog-title">{selectedTopic}</h2>
+                  <button className="review-close" type="button" aria-label="Close topic" onClick={() => setSelectedTopic(null)}><X size={19} /></button>
+                </header>
+                <div className="syllabus-topic-dialog-content" />
+                <footer className="syllabus-topic-dialog-footer">
+                  <button className="review-save-button" type="button" onClick={() => setSelectedTopic(null)}>Close</button>
+                </footer>
+              </div>
+            </dialog>
           </section>
         )}
       </main>
