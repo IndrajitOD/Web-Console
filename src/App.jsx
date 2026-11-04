@@ -85,7 +85,16 @@ const dissatisfactionQuestion = {
   number: '05A',
   text: 'Reasons for dissatisfaction with the surveyor (Apart from non approval of claim/damages)',
   type: 'choice',
-  options: ['Non approval of claim/damages'],
+  options: [
+    'Delay in delivery order',
+    'Non approval of claim/damages',
+    'Delay in survey',
+    'Service and delivery related',
+    'Survey misbehaved',
+    'Survey not respond to customer',
+    'No specific reason shared',
+    'N/A',
+  ],
 }
 
 const navItems = [
