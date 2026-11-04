@@ -780,7 +780,6 @@ function App() {
                   <span className="syllabus-topic-number">{String(index + 1).padStart(2, '0')}</span>
                   <button className="syllabus-topic-button" type="button" onClick={() => setSelectedTopic(topic)}>
                     <span>{topic}</span>
-                    <ArrowUpRight size={14} aria-hidden="true" />
                   </button>
                 </li>
               ))}
@@ -796,6 +795,7 @@ function App() {
                 <header className="syllabus-topic-dialog-header">
                   <div className="section-kicker">BASIC SYLLABUS</div>
                   <h2 id="syllabus-topic-dialog-title">{selectedTopic}</h2>
+                  <p className="syllabus-topic-status"><span />Still in progress</p>
                   <button className="review-close" type="button" aria-label="Close topic" onClick={() => setSelectedTopic(null)}><X size={19} /></button>
                 </header>
                 <div className="syllabus-topic-dialog-content" />

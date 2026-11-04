@@ -335,14 +335,14 @@ h1, h2, h3, p { margin-top: 0; }
 .second-page-placeholder a:hover { text-decoration: underline; }
 .syllabus-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 28px; margin: 24px 0 0; padding: 0; list-style: none; }
 .syllabus-list li { display: grid; grid-template-columns: 29px minmax(0,1fr); align-items: center; gap: 10px; min-height: 52px; border-top: 1px solid #e8ece8; }
-.syllabus-topic-button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 48px; padding: 0 8px 0 0; border: 0; background: transparent; color: #414942; text-align: left; font-size: 12px; font-weight: 600; cursor: pointer; }
-.syllabus-topic-button svg { flex: 0 0 auto; color: #8d968f; transition: transform .12s ease; }
-.syllabus-topic-button:hover svg { transform: translate(2px, -2px); }
+.syllabus-topic-button { display: flex; align-items: center; width: 100%; min-height: 48px; padding: 0 8px 0 0; border: 0; background: transparent; color: #414942; text-align: left; font-size: 12px; font-weight: 600; cursor: pointer; }
 .syllabus-topic-dialog { width: min(520px, calc(100vw - 24px)); max-width: none; min-height: 280px; padding: 0; overflow: hidden; border: 1px solid #dfe5df; border-radius: 8px; background: white; color: var(--ink); box-shadow: 0 22px 65px rgba(27,38,30,.24); }
 .syllabus-topic-dialog::backdrop { background: rgba(26,34,28,.46); backdrop-filter: blur(2px); }
 .syllabus-topic-dialog-inner { display: flex; min-height: 278px; flex-direction: column; }
 .syllabus-topic-dialog-header { position: relative; padding: 20px 60px 17px 22px; border-bottom: 1px solid var(--line); }
 .syllabus-topic-dialog-header h2 { margin: 7px 0 0; font: 700 19px Manrope, sans-serif; }
+.syllabus-topic-status { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 0; color: #8b7049; font-size: 11px; }
+.syllabus-topic-status > span { width: 6px; height: 6px; border-radius: 50%; background: #bd914f; }
 .syllabus-topic-dialog-header .review-close { position: absolute; top: 17px; right: 18px; }
 .syllabus-topic-dialog-content { flex: 1; min-height: 120px; }
 .syllabus-topic-dialog-footer { display: flex; justify-content: flex-end; padding: 12px 18px; border-top: 1px solid var(--line); background: #fbfcfa; }
