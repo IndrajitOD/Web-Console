@@ -527,6 +527,18 @@ function App() {
   }, [summaryOpen])
 
   useEffect(() => {
+    if (!summaryOpen) return
+    const bodyOverflow = document.body.style.overflow
+    const documentOverflow = document.documentElement.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = bodyOverflow
+      document.documentElement.style.overflow = documentOverflow
+    }
+  }, [summaryOpen])
+
+  useEffect(() => {
     setSaveState('Saving…')
     const timer = window.setTimeout(() => {
       localStorage.setItem(PRACTICE_STORAGE_KEY, JSON.stringify(answers))
@@ -722,7 +734,10 @@ function App() {
                 </div>
                 <footer className="review-dialog-footer">
                   <span><span className="save-dot" />Saved locally</span>
-                  <button className="complete-button" type="button" onClick={() => setSummaryOpen(false)}>Done</button>
+                  <div className="review-dialog-actions">
+                    <button className="review-reset-button" type="button" onClick={resetPractice}>Reset form</button>
+                    <button className="review-save-button" type="button" onClick={() => setSummaryOpen(false)}>Save</button>
+                  </div>
                 </footer>
               </div>
             </dialog>
