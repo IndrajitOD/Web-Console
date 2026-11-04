@@ -334,6 +334,9 @@ h1, h2, h3, p { margin-top: 0; }
 .second-page-placeholder p { margin: 8px 0 18px; color: #777f79; font-size: 11px; }
 .second-page-placeholder a { color: #397455; font-size: 11px; font-weight: 600; text-decoration: none; }
 .second-page-placeholder a:hover { text-decoration: underline; }
+.syllabus-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 28px; margin: 24px 0 0; padding: 0; list-style: none; }
+.syllabus-list li { display: grid; grid-template-columns: 29px minmax(0,1fr); align-items: center; gap: 10px; min-height: 52px; border-top: 1px solid #e8ece8; color: #414942; font-size: 12px; font-weight: 600; line-height: 1.4; }
+.syllabus-topic-number { color: #8d968f; font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 10px max(26px, calc((100% - 868px) / 2)); border-top: 1px solid var(--line); background: rgba(255,255,255,.72); color: #838b85; font-size: 9px; }
 
 @media (max-width: 560px) {
@@ -364,6 +367,8 @@ h1, h2, h3, p { margin-top: 0; }
   .practice-actions .complete-button { min-height: 42px; font-size: 13px; }
   .site-footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; min-height: 56px; padding: 10px 14px; font-size: 11px; }
   .second-page-placeholder { min-height: 230px; padding: 22px 18px; }
+  .syllabus-list { grid-template-columns: minmax(0,1fr); margin-top: 18px; }
+  .syllabus-list li { min-height: 50px; font-size: 14px; }
   .review-dialog { width: calc(100vw - 20px); max-height: 88vh; border-radius: 7px; }
   .review-dialog-header { padding: 17px 15px 13px; }
   .review-dialog-header h2 { font-size: 18px; }

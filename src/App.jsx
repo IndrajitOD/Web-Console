@@ -120,6 +120,24 @@ const serviceDissatisfactionQuestion = {
   ],
 }
 
+const syllabusTopics = [
+  'Contact Info',
+  'Benefits we offer',
+  'Risk Covered and Exclusions',
+  'Policy Types',
+  'TP vs OD',
+  'CPA Opt out',
+  'Discounts',
+  'NCB',
+  'IDV',
+  'DA',
+  'PCF',
+  'Geographical Extensions',
+  'Endorsement',
+  'Add-ons',
+  'ORA vs RSA',
+]
+
 const deliveryDelayQuestion = {
   key: 'deliveryDelayReason',
   number: '06A',
@@ -725,7 +743,7 @@ function App() {
                       </div>
                     ))}
                   </div>
-                  {answers.remarks && (
+                  {answers.remarks?.trim() && (
                     <div className="review-notes">
                       <span>Agent notes</span>
                       <p>{answers.remarks}</p>
@@ -744,10 +762,17 @@ function App() {
           </section>
         ) : (
           <section className="second-page-placeholder" aria-labelledby="second-page-title">
-            <div className="section-kicker">WORKSPACE</div>
-            <h1 id="second-page-title">Page 2</h1>
-            <p>This page is ready for your next section.</p>
-            <a href="#claim-experience">Return to claim experience</a>
+            <div className="section-kicker">BASIC SYLLABUS</div>
+            <h1 id="second-page-title">Policy topics</h1>
+            <p>Topics to cover in the basic policy syllabus.</p>
+            <ol className="syllabus-list">
+              {syllabusTopics.map((topic, index) => (
+                <li key={topic}>
+                  <span className="syllabus-topic-number">{String(index + 1).padStart(2, '0')}</span>
+                  <span>{topic}</span>
+                </li>
+              ))}
+            </ol>
           </section>
         )}
       </main>

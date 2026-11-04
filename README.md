@@ -13,7 +13,7 @@ Open the local address printed by Vite on your computer. To try the app from a p
 
 ## Practice flow
 
-- Use the top navigation to switch between Claim experience and the Page 2 placeholder.
+- Use the top navigation to switch between Claim experience and the basic policy syllabus topics.
 - Change yes/no answers and 1–10 ratings, then add optional agent notes.
 - Finish or reset the practice form. Survey answers persist in this browser.
-- Page 2 is a placeholder for a future section.
+- Page 2 lists the basic policy syllabus topics to expand later.
