@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import * as Select from '@radix-ui/react-select'
 import {
   Activity,
@@ -227,9 +227,9 @@ function LegacyApp() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#home" aria-label="Claimdesk home">
+        <a className="brand" href="#home" aria-label="Web Console home">
           <span className="brand-mark"><ShieldCheck size={19} strokeWidth={2.2} /></span>
-          <span>claimdesk<span className="brand-period">.</span></span>
+          <span>Web Console<span className="brand-period">.</span></span>
         </a>
         <div className="workspace-label">WORKSPACE</div>
         <button className="workspace-switcher" type="button">
@@ -268,7 +268,7 @@ function LegacyApp() {
           <button className="mobile-brand" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Open menu">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
             <span className="brand-mark"><ShieldCheck size={16} /></span>
-            <span>claimdesk<span className="brand-period">.</span></span>
+            <span>Web Console<span className="brand-period">.</span></span>
           </button>
           <div className="breadcrumb"><span>Call queue</span><span className="crumb-slash">/</span><strong>Call review</strong></div>
           <div className="top-actions">
@@ -427,7 +427,7 @@ function Question({ question, value, onChange }) {
     : (question.options ?? ['Yes', 'No', 'Don’t know']).map((answer) => ({ value: answer, label: answer }))
 
   return (
-    <div className="question-row">
+    <div className={`question-row ${question.number.length > 2 ? 'follow-up-row' : ''}`}>
       <div className="question-copy">
         <span className="question-number">{question.number}</span>
         <div><p>{question.text}</p>{question.hint && <small>{question.hint}</small>}</div>
@@ -510,12 +510,21 @@ function App() {
   const [activePage, setActivePage] = useState(() => window.location.hash === '#page-two' ? 'page-two' : 'experience')
   const [saveState, setSaveState] = useState('Saved locally')
   const [completed, setCompleted] = useState(false)
+  const [summaryOpen, setSummaryOpen] = useState(false)
+  const reviewDialogRef = useRef(null)
 
   useEffect(() => {
     const updatePage = () => setActivePage(window.location.hash === '#page-two' ? 'page-two' : 'experience')
     window.addEventListener('hashchange', updatePage)
     return () => window.removeEventListener('hashchange', updatePage)
   }, [])
+
+  useEffect(() => {
+    const dialog = reviewDialogRef.current
+    if (!dialog) return
+    if (summaryOpen && !dialog.open) dialog.showModal()
+    if (!summaryOpen && dialog.open) dialog.close()
+  }, [summaryOpen])
 
   useEffect(() => {
     setSaveState('Saving…')
@@ -540,6 +549,7 @@ function App() {
       return next
     })
     setCompleted(false)
+    setSummaryOpen(false)
   }
 
   const visibleQuestions = questionGroups.flatMap((group) => group.questions)
@@ -566,15 +576,23 @@ function App() {
   const resetPractice = () => {
     setAnswers(initialAnswers)
     setCompleted(false)
+    setSummaryOpen(false)
+  }
+
+  const getSummaryAnswer = (question) => {
+    const value = answers[question.key]
+    if (value === '' || value === null || value === undefined) return 'Not answered'
+    if (question.type === 'rating') return value === NO_RATING ? 'No rating' : `${value} / 10`
+    return value
   }
 
   return (
     <div className="practice-site">
       <header className="site-header">
         <div className="site-header-inner">
-          <a className="site-brand" href="#claim-experience" aria-label="Claimdesk home">
+          <a className="site-brand" href="#claim-experience" aria-label="Web Console home">
             <span className="brand-mark"><ShieldCheck size={18} /></span>
-            <span>claimdesk<span className="brand-period">.</span></span>
+            <span>Web Console<span className="brand-period">.</span></span>
           </a>
           <nav className="site-navigation" aria-label="Main navigation">
             <a href="#claim-experience" aria-current={activePage === 'experience' ? 'page' : undefined}>Claim experience</a>
@@ -594,9 +612,6 @@ function App() {
                 <span className="completion-badge"><CheckCircle2 size={15} />{answeredCount} of {questionCount} answered</span>
               </div>
               <p>Record the customer’s feedback about their claim.</p>
-            </div>
-            <div className="progress-track" aria-label={`${answeredCount} of ${questionCount} questions answered`}>
-              <span style={{ width: `${(answeredCount / questionCount) * 100}%` }} />
             </div>
             <div className="question-groups experience-form">
               {questionGroups.map((group) => (
@@ -663,13 +678,54 @@ function App() {
               <span className="save-state"><span className="save-dot" />{saveState}</span>
               <div className="form-actions">
                 <button className="text-action" type="button" onClick={resetPractice}>Reset form</button>
-                <button className={`complete-button ${completed ? 'is-complete' : ''}`} type="button" onClick={() => setCompleted(true)}>
+                <button className={`complete-button ${completed ? 'is-complete' : ''}`} type="button" onClick={() => { setCompleted(true); setSummaryOpen(true) }}>
                   {completed ? <Check size={16} /> : <CheckCircle2 size={16} />}
                   {completed ? 'Practice complete' : 'Finish practice'}
                 </button>
               </div>
             </div>
             {completed && <div className="completion-notice" role="status"><CheckCircle2 size={16} /> Practice complete. Your answers are saved on this device.</div>}
+            <dialog
+              ref={reviewDialogRef}
+              className="review-dialog"
+              aria-labelledby="review-dialog-title"
+              onCancel={(event) => { event.preventDefault(); setSummaryOpen(false) }}
+              onClick={(event) => { if (event.target === event.currentTarget) setSummaryOpen(false) }}
+            >
+              <div className="review-dialog-inner">
+                <header className="review-dialog-header">
+                  <div>
+                    <div className="section-kicker">PRACTICE REVIEW</div>
+                    <h2 id="review-dialog-title">Your answers</h2>
+                    <p>{visibleQuestions.length} questions in this practice</p>
+                  </div>
+                  <button className="review-close" type="button" aria-label="Close review" onClick={() => setSummaryOpen(false)}><X size={19} /></button>
+                </header>
+                <div className="review-dialog-body">
+                  <div className="review-answer-list">
+                    {visibleQuestions.map((question) => (
+                      <div className="review-answer-row" key={question.key}>
+                        <span className="review-question-number">{question.number}</span>
+                        <div className="review-answer-copy">
+                          <p>{question.text}</p>
+                          <strong>{getSummaryAnswer(question)}</strong>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {answers.remarks && (
+                    <div className="review-notes">
+                      <span>Agent notes</span>
+                      <p>{answers.remarks}</p>
+                    </div>
+                  )}
+                </div>
+                <footer className="review-dialog-footer">
+                  <span><span className="save-dot" />Saved locally</span>
+                  <button className="complete-button" type="button" onClick={() => setSummaryOpen(false)}>Done</button>
+                </footer>
+              </div>
+            </dialog>
           </section>
         ) : (
           <section className="second-page-placeholder" aria-labelledby="second-page-title">
@@ -682,7 +738,7 @@ function App() {
       </main>
 
       <footer className="site-footer">
-        <span>Claimdesk practice</span>
+        <span>Web Console practice</span>
         <span>Created by Indrajit Bhowmick</span>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-# Claimdesk Practice CRM
+# Web Console
 
 A mobile-first React practice CRM inspired by a motor-claims customer survey workflow. Sample call and customer information is fictional. Survey answers are saved in this browser using local storage; no real calls are placed and no backend is connected.
 
