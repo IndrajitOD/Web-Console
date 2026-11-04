@@ -36,6 +36,7 @@ const initialAnswers = {
   deliveryDelayReason: '',
   deliveryDelayDetail: '',
   service: '',
+  serviceDissatisfactionReason: '',
   overall: '',
   remarks: '',
 }
@@ -96,6 +97,26 @@ const dissatisfactionQuestion = {
     'Survey not respond to customer',
     'No specific reason shared',
     'N/A',
+  ],
+}
+
+const serviceDissatisfactionQuestion = {
+  key: 'serviceDissatisfactionReason',
+  number: '07A',
+  text: 'Reasons for dissatisfaction with dealer/Workshop',
+  type: 'choice',
+  options: [
+    'Cashless facility not given',
+    'Delay in claim initiating',
+    'Delay in repair',
+    'Did not get support for towing',
+    'Initially refused to accept the car',
+    'Lack of manpower',
+    'Misbehaved by dealer personnel',
+    'No response post submitting the car',
+    'Parts not available',
+    'Repair not done properly',
+    'Space not available in workshop',
   ],
 }
 
@@ -515,6 +536,7 @@ function App() {
         next.deliveryDelayDetail = ''
       }
       if (key === 'deliveryDelayReason') next.deliveryDelayDetail = ''
+      if (key === 'service' && value !== 'No') next.serviceDissatisfactionReason = ''
       return next
     })
     setCompleted(false)
@@ -533,6 +555,8 @@ function App() {
       visibleQuestions.splice(deliveryIndex + 2, 0, getDeliveryDelayDetailQuestion(answers.deliveryDelayReason))
     }
   }
+  const serviceIndex = visibleQuestions.findIndex(({ key }) => key === 'service')
+  if (answers.service === 'No') visibleQuestions.splice(serviceIndex + 1, 0, serviceDissatisfactionQuestion)
   const questionCount = visibleQuestions.length
   const answeredCount = visibleQuestions.filter(({ key }) => {
     const value = answers[key]
@@ -611,6 +635,13 @@ function App() {
                             question={getDeliveryDelayDetailQuestion(answers.deliveryDelayReason)}
                             value={answers.deliveryDelayDetail}
                             onChange={(value) => setAnswer('deliveryDelayDetail', value)}
+                          />
+                        )}
+                        {question.key === 'service' && answers.service === 'No' && (
+                          <Question
+                            question={serviceDissatisfactionQuestion}
+                            value={answers[serviceDissatisfactionQuestion.key]}
+                            onChange={(value) => setAnswer(serviceDissatisfactionQuestion.key, value)}
                           />
                         )}
                       </Fragment>
